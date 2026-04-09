@@ -20,4 +20,14 @@ From [1] and [2], VPD at the baseline = 0.70.
 
 From [3] and [4], t = 2.0 * 0.70/VPD. [5] This is our drying time equation, that relates time to temperature and humidity. 
 
+HOWEVER, this is a very basic model that uses max T and max RH for each day. These are unlikely to occur simultaneously, and certainly don't last the whole day. That also rules out taking an average: there's not a linear relationship between e.g. RH and drying time. A more accurate approach would be to consider hourly drying progress rather than a single drying time. i.e., treating the data as granularly as possible. 
+
+I have assumed that any rain should be avoided, as opposed to treating rain as re-wetting that can then be dried. I think people would prefer not to have their newly washed clothes soaked in rainwater, even if they are then dried again. Don't want that mildewy smell. That means that history (fabric saturation) can be discounted, as the drying only goes in one direction. Otherwise, a MILP might be needed.
+
+That simplifies the problem into a sliding window optimisation. The contiguous nature suits itself to sliding window, which is much more efficient than brute force (https://medium.com/@weirdyes/mastering-the-sliding-window-technique-solve-array-problems-efficiently-b877c82226aa) and simpler than MILP. 
+
+Wind speed is currently not considered as the data is measured 10 m above ground level. Peoples' gardens are typically close to ground level and somewhat sheltered from wind. 
+
+Linear drying speed is assumed (i.e. drying speed doesn't accelerate or decelerate according to evaporation level)
+
 #TODO: tidy up README to clearly explain theory, provide clear user instructions, and list future work. 

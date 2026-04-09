@@ -1,30 +1,24 @@
-#%%
-
-from datetime import date
-from typing import List
-
+from datetime import datetime
 import requests
-from laundromatic.models import DailyForecast
+from laundromatic.models import HourlyForecast
 
-OPEN_METEO_DAILY_URL = "https://api.open-meteo.com/v1/forecast"
+OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
-
-def get_daily_forecast(
+def get_hourly_forecast(
     latitude: float,
     longitude: float,
     days: int = 7,
 ):
-
     response = requests.get(
-        OPEN_METEO_DAILY_URL,
+        OPEN_METEO_FORECAST_URL,
         params={
             "latitude": latitude,
             "longitude": longitude,
-            "daily": [
-                "temperature_2m_max",
-                "relative_humidity_2m_max",
-                "precipitation_probability_max",
-                "wind_speed_10m_max",
+            "hourly": [
+                "temperature_2m",
+                "relative_humidity_2m",
+                "precipitation_probability",
+                #"wind_speed_10m",
             ],
             "forecast_days": days,
             "timezone": "auto",
@@ -34,22 +28,19 @@ def get_daily_forecast(
 
     response.raise_for_status()
     data = response.json()
-    print(data)
+
+    hourly = data["hourly"]
     forecasts = []
 
-    for i in range(len(data["daily"]["time"])):
+    for i, ts in enumerate(hourly["time"]):
         forecasts.append(
-            DailyForecast(
-                forecast_date=date.fromisoformat(data["daily"]["time"][i]),
-                temperature_c=data["daily"]["temperature_2m_max"][i],
-                humidity_pct=data["daily"]["relative_humidity_2m_max"][i],
-                precipitation_probability=(
-                    data["daily"]["precipitation_probability_max"][i] / 100.0
-                ),
-                wind_speed_mps=data["daily"]["wind_speed_10m_max"][i],
+            HourlyForecast(
+                timestamp=datetime.fromisoformat(ts),
+                temperature_c=hourly["temperature_2m"][i],
+                humidity_pct=hourly["relative_humidity_2m"][i],
+                precipitation_probability=hourly["precipitation_probability"][i] / 100.0,
+                #wind_speed_mps=hourly["wind_speed_10m"][i],
             )
         )
 
     return forecasts
-
-# %%
