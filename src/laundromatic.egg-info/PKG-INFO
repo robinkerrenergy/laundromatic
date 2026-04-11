@@ -1,3 +1,48 @@
 Metadata-Version: 2.4
 Name: laundromatic
-Version: 0.0.0
+Version: 0.1.0
+Summary: A fun tool for recommending optimal outdoor clothes-drying windows.
+Description-Content-Type: text/markdown
+
+Need a starting assumption about speed of drying. Then can apply Vapour Pressure Deficit to produce an assumed relation between T, RH and drying rate. 
+
+Now let's apply VPD equation: 
+https://en.wikipedia.org/wiki/Vapour-pressure_deficit
+
+VPD = vp_sat * (1 - RH/100). [1]
+
+https://en.wikipedia.org/wiki/Arden_Buck_equation 
+vp_sat = 0.61121exp((18.678 - T/234.5)(T/(257.14+T))) (kPa) [2]
+
+Let's assume that:
+    - VPD has a linear relationship with drying time (https://www.researchgate.net/figure/Evaporation-rate-as-a-function-of-VPD-from-freshwater-and-saltwater-at-an-aeration-level_fig1_271421065)
+    - at 20C, 70% RH, clothes take 4 hours to dry (https://www.reddit.com/r/explainlikeimfive/comments/1qobn49/eli5_what_are_the_weather_conditions_that_make/). This is the baseline. (Note that the time will also vary depending on the type of clothes being washed. Wind will also play a role. Clothes categories and wind can be included at a later stage.)
+
+Let's add a drying time factor (F) such that F = 1 for the baseline. F=2 means that drying happens twice as slowly, and F=0.5 means that it happens twice as fast. Therefore F = VPD_0/VPD. [3]
+
+And drying time, t = t_0 * F. [4]
+
+From [1] and [2], VPD at the baseline = 0.70.
+
+From [3] and [4], t = 2.0 * 0.70/VPD. [5] This is our drying time equation, that relates time to temperature and humidity. 
+
+HOWEVER, this is a very basic model that uses max T and max RH for each day. These are unlikely to occur simultaneously, and certainly don't last the whole day. That also rules out taking an average: there's not a linear relationship between e.g. RH and drying time. A more accurate approach would be to consider hourly drying progress rather than a single drying time. i.e., treating the data as granularly as possible. 
+
+I have assumed that any rain should be avoided, as opposed to treating rain as re-wetting that can then be dried. I think people would prefer not to have their newly washed clothes soaked in rainwater, even if they are then dried again. Don't want that mildewy smell. That means that history (fabric saturation) can be discounted, as the drying only goes in one direction. Otherwise, a MILP might be needed.
+
+That simplifies the problem into a sliding window optimisation. The contiguous nature suits itself to sliding window, which is much more efficient than brute force (https://medium.com/@weirdyes/mastering-the-sliding-window-technique-solve-array-problems-efficiently-b877c82226aa) and simpler than MILP. 
+
+Wind speed is currently not considered as the data is measured 10 m above ground level. Peoples' gardens are typically close to ground level and somewhat sheltered from wind. 
+
+Linear drying speed is assumed (i.e. drying speed doesn't accelerate or decelerate according to evaporation level)
+
+#TODO: tidy up README to clearly explain theory, provide clear user instructions, and list future work. 
+
+#Future work: 
+- add graphical output to show hourly drying potential over entire time horizon. 
+- add true no-code interface. 
+- consider wind speed and fabric thickness in drying time estimate. 
+
+#Limitations:
+- broad estimate.
+- inaccurate at T < 0 C.

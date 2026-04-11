@@ -10,7 +10,7 @@ vp_sat = 0.61121exp((18.678 - T/234.5)(T/(257.14+T))) (kPa) [2]
 
 Let's assume that:
     - VPD has a linear relationship with drying time (https://www.researchgate.net/figure/Evaporation-rate-as-a-function-of-VPD-from-freshwater-and-saltwater-at-an-aeration-level_fig1_271421065)
-    - at 20C, 70% RH, clothes take 2 hours to dry (https://www.reddit.com/r/explainlikeimfive/comments/1qobn49/eli5_what_are_the_weather_conditions_that_make/). This is the baseline. (Note that the time will also vary depending on the type of clothes being washed. Wind will also play a role. Clothes categories and wind can be included at a later stage.)
+    - at 20C, 70% RH, clothes take 4 hours to dry (https://www.reddit.com/r/explainlikeimfive/comments/1qobn49/eli5_what_are_the_weather_conditions_that_make/). This is the baseline. (Note that the time will also vary depending on the type of clothes being washed. Wind will also play a role. Clothes categories and wind can be included at a later stage.)
 
 Let's add a drying time factor (F) such that F = 1 for the baseline. F=2 means that drying happens twice as slowly, and F=0.5 means that it happens twice as fast. Therefore F = VPD_0/VPD. [3]
 
@@ -30,4 +30,21 @@ Wind speed is currently not considered as the data is measured 10 m above ground
 
 Linear drying speed is assumed (i.e. drying speed doesn't accelerate or decelerate according to evaporation level)
 
+Installation instructions:
+git clone
+
+navigate to repo root and enter pip install e . 
+
+Enter python -m laundromatic
+Optional additional arguments:
+
 #TODO: tidy up README to clearly explain theory, provide clear user instructions, and list future work. 
+
+#Future work: 
+- add graphical output to show hourly drying potential over entire time horizon. 
+- add true no-code interface. 
+- consider wind speed and fabric thickness in drying time estimate. 
+
+#Limitations:
+- broad estimate.
+- inaccurate at T < 0 C.

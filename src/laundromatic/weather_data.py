@@ -1,12 +1,12 @@
 from datetime import datetime
 import requests
-from laundromatic.models import HourlyForecast
+from laundromatic.core import HourlyForecast
 
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 def get_hourly_forecast(
-    latitude: float,
-    longitude: float,
+    latitude: float = 51.51,
+    longitude: float = 0.13,
     days: int = 7,
 ):
     response = requests.get(
