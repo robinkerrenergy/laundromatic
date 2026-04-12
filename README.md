@@ -14,10 +14,10 @@ The VPD is then converted to a simple "drying potential" metric, using the basel
 
 ## Installation
 
-1. Clone the gitlab repository onto your machine.
-2. Navigate to the repository and open a command-line prompt.
+1. From Git Bash, clone the github repository to a convenient place on your file system using `git clone https://github.com/robinkerrenergy/laundromatic.git`.
+2. Change your directory to the root directory of the newly created Git repo: `cd laundromatic`.
 3. Install in editable mode by entering `pip install -e .`.
-4. That's it! Laundromatic is now ready for use. 
+4. That's it! Laundromatic should now be ready for use. 
 
 ## User Guide
 
@@ -32,7 +32,7 @@ Location:
   --lon LON             Longitude. Default: 0.13.
 
 Drying model options:
-  --days DAYS           Forecast duration (days). Default: 7.
+  --days DAYS           Forecast duration (days, 1-16). Default: 7.
   --latest-end-hour LATEST_END_HOUR
                         Latest acceptable finish time (hour, 0–23). Default: 20.
   --earliest-start-hour EARLIEST_START_HOUR
