@@ -17,12 +17,18 @@ def parse_args():
     location.add_argument("--lon", type=float, default=0.13, help="Longitude. Default: 0.13.")
 
     model = parser.add_argument_group("Drying model options")
-    model.add_argument("--days", type=int, default=7, help="Forecast duration (days). Default: 7.")
+    model.add_argument("--days", type=int, default=7, help="Forecast duration (days, 1-16). Default: 7.")
     model.add_argument(
         "--latest-end-hour",
         type=int,
         default=20,
         help="Latest acceptable finish time (hour, 0–23). Default: 20.",
+    )
+    model.add_argument(
+        "--earliest-start-hour",
+        type=int,
+        default=8,
+        help="Earliest acceptable start time (hour, 0–23). Default: 8.",
     )
     model.add_argument(
         "--required-drying",

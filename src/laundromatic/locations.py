@@ -1,5 +1,6 @@
 #%%
 import pandas as pd
+from importlib.resources import files
 
 class Location:
     def __init__(self, name, lat, lon):
@@ -9,7 +10,8 @@ class Location:
 
 _LOCATIONS = {}
 
-nuts1_locs = pd.read_csv("data/nuts1_uk.csv")
+csv_path = files("laundromatic.data") / "nuts1_uk.csv"
+nuts1_locs = pd.read_csv(csv_path)
 nuts1_locs = (
     nuts1_locs.rename(columns={"NUTS118NM": "location", "LONG": "long", "LAT": "lat"})
     [["location", "lat", "long"]]
@@ -27,4 +29,3 @@ def get_location(name):
         raise ValueError(f"Unknown location '{name}'. Supported: {list(_LOCATIONS.keys())}")
 
     return _LOCATIONS[name]
-# %%

@@ -1,48 +1,70 @@
 Metadata-Version: 2.4
 Name: laundromatic
 Version: 0.1.0
-Summary: A fun tool for recommending optimal outdoor clothes-drying windows.
+Summary: A fun tool for finding optimal outdoor clothes-drying windows.
 Description-Content-Type: text/markdown
 
-Need a starting assumption about speed of drying. Then can apply Vapour Pressure Deficit to produce an assumed relation between T, RH and drying rate. 
+# Laundromatic
 
-Now let's apply VPD equation: 
-https://en.wikipedia.org/wiki/Vapour-pressure_deficit
+A fun project for finding optimal outdoor clothes-drying windows. Weather forecasts are taken from https://open-meteo.com. 
 
-VPD = vp_sat * (1 - RH/100). [1]
+## Documentation
 
-https://en.wikipedia.org/wiki/Arden_Buck_equation 
-vp_sat = 0.61121exp((18.678 - T/234.5)(T/(257.14+T))) (kPa) [2]
+Tired of checking the weather forecast to figure out when your laundry will actually dry? Keen to reduce energy use by avoiding the tumble drier and/or by spacing out washes efficiently?
 
-Let's assume that:
-    - VPD has a linear relationship with drying time (https://www.researchgate.net/figure/Evaporation-rate-as-a-function-of-VPD-from-freshwater-and-saltwater-at-an-aeration-level_fig1_271421065)
-    - at 20C, 70% RH, clothes take 4 hours to dry (https://www.reddit.com/r/explainlikeimfive/comments/1qobn49/eli5_what_are_the_weather_conditions_that_make/). This is the baseline. (Note that the time will also vary depending on the type of clothes being washed. Wind will also play a role. Clothes categories and wind can be included at a later stage.)
+Laundromatic uses temperature (T) and relative humidity (RH) data  to estimate how effectively laundry will dry outdoors, and helps you choose the best time window. The model computes the hourly vapour pressure deficit (VPD) using the Arden Buck equation, a standard approximation in atmospheric physics (https://www.appstate.edu/~neufeldhs/pltphys/transpirationbasics.htm; https://journals.ametsoc.org/view/journals/apme/20/12/1520-0450_1981_020_1527_nefcvp_2_0_co_2.xml). 
 
-Let's add a drying time factor (F) such that F = 1 for the baseline. F=2 means that drying happens twice as slowly, and F=0.5 means that it happens twice as fast. Therefore F = VPD_0/VPD. [3]
+The VPD is then converted to a simple "drying potential" metric, using the baseline - and highly anecdotal - assumption that at 20°C and 70% RH, a batch of laundry would dry in 4 hours. Laundromatic recommends two windows: 
+- the **most efficient drying window** in terms of T and RH
+- the **last feasible window** (useful for spacing out your washes as efficiently as possible)
 
-And drying time, t = t_0 * F. [4]
+## Installation
 
-From [1] and [2], VPD at the baseline = 0.70.
+1. Clone the gitlab repository onto your machine.
+2. Navigate to the repository and open a command-line prompt.
+3. Install in editable mode by entering `pip install -e .`.
+4. That's it! Laundromatic is now ready for use. 
 
-From [3] and [4], t = 2.0 * 0.70/VPD. [5] This is our drying time equation, that relates time to temperature and humidity. 
+## User Guide
 
-HOWEVER, this is a very basic model that uses max T and max RH for each day. These are unlikely to occur simultaneously, and certainly don't last the whole day. That also rules out taking an average: there's not a linear relationship between e.g. RH and drying time. A more accurate approach would be to consider hourly drying progress rather than a single drying time. i.e., treating the data as granularly as possible. 
+Laundromatic operates as a command-line program. To perform a simple run: with a cmd window open from the repo root, enter `python -m laundromatic`. 
 
-I have assumed that any rain should be avoided, as opposed to treating rain as re-wetting that can then be dried. I think people would prefer not to have their newly washed clothes soaked in rainwater, even if they are then dried again. Don't want that mildewy smell. That means that history (fabric saturation) can be discounted, as the drying only goes in one direction. Otherwise, a MILP might be needed.
+The following optional arguments can be added as required:
+  -h, --help            show this help message and exit
 
-That simplifies the problem into a sliding window optimisation. The contiguous nature suits itself to sliding window, which is much more efficient than brute force (https://medium.com/@weirdyes/mastering-the-sliding-window-technique-solve-array-problems-efficiently-b877c82226aa) and simpler than MILP. 
+Location:
+  --location LOCATION   Location name (e.g. 'London'). Overrides lat/lon if provided.
+  --lat LAT             Latitude. Default: 51.51.
+  --lon LON             Longitude. Default: 0.13.
 
-Wind speed is currently not considered as the data is measured 10 m above ground level. Peoples' gardens are typically close to ground level and somewhat sheltered from wind. 
+Drying model options:
+  --days DAYS           Forecast duration (days). Default: 7.
+  --latest-end-hour LATEST_END_HOUR
+                        Latest acceptable finish time (hour, 0–23). Default: 20.
+  --earliest-start-hour EARLIEST_START_HOUR
+                        Earliest acceptable start time (hour, 0–23). Default: 8.
+  --required-drying REQUIRED_DRYING
+                        Target drying level (default: 1.0, fully dry).
+  --precipitation-probability-threshold PRECIPITATION_PROBABILITY_THRESHOLD
+                        Maximum precipitation probability for an hour to be considered 'dry'. Default: 0.2.
+  --max-duration-hours MAX_DURATION_HOURS
+                        Maximum window length in hours. Default: 8.
 
-Linear drying speed is assumed (i.e. drying speed doesn't accelerate or decelerate according to evaporation level)
+Output options:
+  --show-all            Show all eligible drying windows
 
-#TODO: tidy up README to clearly explain theory, provide clear user instructions, and list future work. 
+Example command: `python -m laundromatic --location "West Midlands (England)" --days 3`.
 
-#Future work: 
-- add graphical output to show hourly drying potential over entire time horizon. 
-- add true no-code interface. 
-- consider wind speed and fabric thickness in drying time estimate. 
+## Limitations
 
-#Limitations:
-- broad estimate.
-- inaccurate at T < 0 C.
+- The drying times are broad estimates. This is a fun tool and not to be taken too seriously - no liability will be accepted for damp clothes!
+- Model accuracy decreases at very low temperatures (e.g. below 0°C). If you're trying to dry clothes outdoors in freezing conditions, results may be... optimistic.
+- Only UK NUTS1 regions are supported for the --location argument. For any other location, enter --lat and --long manually. 
+- Laundromatic assumes a linear relationship between drying progress and time.
+- Wind speed and variations in fabric thickness/type are currently not considered. 
+
+## Future Work 
+
+- Consider wind speed and fabric thickness/type in the calculation.
+- Add visualisation of drying potential over time.
+- Provide a GUI. 

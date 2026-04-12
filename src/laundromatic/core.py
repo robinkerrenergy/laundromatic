@@ -16,25 +16,37 @@ class HourlyForecast:
         self.temperature_c = temperature_c
         self.humidity_pct = humidity_pct
         self.precipitation_probability = precipitation_probability
-        self.no_rain = None # to be computed
+        self.no_rain = None
         #self.wind_speed_mps = wind_speed_mps
-        self.drying_progress = None # to be computed
+        self.drying_progress = None
 
 def drying_progress_for_hour(temperature_c: float, humidity_pct: float):
     
     if temperature_c < 0:
         return 0.0
     
+    # Estimate saturation vapour pressure in kPa using Arden Buck equation:
     else:
-        saturation_vp = 0.61121 * math.exp(
-            (18.678 - temperature_c / 234.5)
-            * (temperature_c / (257.14 + temperature_c))
-        )
+        def arden_buck(temp_c):
+            if temp_c >= 0:
+                return 0.61121 * math.exp(
+                    (18.678 - temp_c / 234.5)
+                    * (temp_c / (257.14 + temp_c))
+                )
+        
+        saturation_vp_kpa = arden_buck(temperature_c)
 
-        vpd = saturation_vp * (1 - humidity_pct / 100.0)
+        def vapour_pressure_deficit(saturation_vp_kpa, humidity_pct):
+            return saturation_vp_kpa * (1 - humidity_pct / 100.0)
+        
+        vpd = vapour_pressure_deficit(saturation_vp_kpa, humidity_pct)
 
-        # Baseline: t0 = 2.0 h, VPD0 = 0.70 kPa
-        return vpd / (4.0 * 0.70)
+        # Baseline assumption: t_0 = 4.0 h at T_0 = 20°C, RH_0 = 70%.
+        temp_c_0 = 20
+        rh_pct_0 = 70
+        svp_kpa_0 = arden_buck(temp_c_0)
+        vpd_kpa_0 = vapour_pressure_deficit(svp_kpa_0, rh_pct_0)
+        return vpd / (4.0 * vpd_kpa_0) # drying progress per hour, relative to baseline
 
 def calculate_drying_progress(hourly_forecasts, precipitation_probability_threshold):
     """
@@ -127,6 +139,58 @@ def find_all_drying_windows(hours, required_drying, max_duration_hours):
     
     return all_windows
 
+def find_best_drying_windows(
+    hourly_forecasts,
+    required_drying,
+    max_duration_hours,
+    precipitation_threshold,
+    earliest_start_hour,
+    latest_end_hour,
+):
+    hourly_by_day = calculate_drying_progress(
+        hourly_forecasts,
+        precipitation_threshold
+    )
+
+    all_windows = []
+
+    for day, hours in hourly_by_day.items():
+        windows = find_all_drying_windows(
+            hours,
+            required_drying,
+            max_duration_hours
+        )
+
+        for w in windows:
+            all_windows.append({
+                "date": day,
+                **w,
+            })
+
+    eligible_windows = [
+        w for w in all_windows
+        if w["end_hour"] <= latest_end_hour - 1
+        and w["start_hour"] >= earliest_start_hour
+    ]
+
+    for w in eligible_windows:
+        w["end_hour"] += 1  # inclusive display
+
+    if not eligible_windows:
+        return None, None, []
+
+    best_window = min(
+        eligible_windows,
+        key=lambda w: (w["duration_hours"], -w["total_drying"])
+    )
+
+    latest_window = max(
+        eligible_windows,
+        key=lambda w: (w["date"], w["start_hour"])
+    )
+
+    return best_window, latest_window, eligible_windows
+
 def format_window(window):
     hourly_data = window["hourly_data"]
     
@@ -140,12 +204,3 @@ def format_window(window):
         f"avgT={avg_temp:.1f}°C | "
         f"avgRH={avg_rh:.0f}%"
     )
-
-#%%
-#TODO: negative and very low T still gives quite high drying progress for low RH. Figure out why and fix.
-#TODO: calculate baseline VPD (don't hardcode) just once, to avoid hardcoding 0.7
-#TODO: define baseline drying time (don't hardcode) just once, to avoid hardcoding 2.0
-#TODO: define Arden Buck constants at the top, then use variables (again, to avoid hardcoding).
-#TODO: allow user to select required_drying andin case they're happy to finish drying indoors.
-# and max_duration_hours (e.g. if they want to only consider windows of up to 4 hours, since longer ones are less likely to be useful).
-#TODO: add average temp. and RH for each window. 

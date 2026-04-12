@@ -10,4 +10,5 @@ src/laundromatic.egg-info/PKG-INFO
 src/laundromatic.egg-info/SOURCES.txt
 src/laundromatic.egg-info/dependency_links.txt
 src/laundromatic.egg-info/top_level.txt
-tests/tests.py
+src/laundromatic/data/__init__.py
+src/laundromatic/data/nuts1_uk.csv
