@@ -16,6 +16,7 @@ The VPD is then converted to a simple "drying potential" metric, using the basel
 
 1. From Git Bash, clone the github repository to a convenient place on your file system using `git clone https://github.com/robinkerrenergy/laundromatic.git`.
 2. Change your directory to the root directory of the newly created Git repo: `cd laundromatic`.
+1. Create a virtual environment `python -m venv venv` and activate it `venv\Scripts\Activate`.
 3. Install in editable mode by entering `pip install -e .`.
 4. That's it! Laundromatic should now be ready for use. 
 
