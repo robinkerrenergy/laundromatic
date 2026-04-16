@@ -8,7 +8,7 @@ Tired of checking the weather forecast to figure out when your laundry will actu
 
 Laundromatic uses temperature (T) and relative humidity (RH) data  to estimate how effectively laundry will dry outdoors, and helps you choose the best time window. The model computes the hourly vapour pressure deficit (VPD) using the Arden Buck equation, a standard approximation in atmospheric physics (https://www.appstate.edu/~neufeldhs/pltphys/transpirationbasics.htm; https://journals.ametsoc.org/view/journals/apme/20/12/1520-0450_1981_020_1527_nefcvp_2_0_co_2.xml). 
 
-The VPD is then converted to a simple "drying potential" metric, using the baseline - and highly anecdotal - assumption that at 20°C and 70% RH, a batch of laundry would dry in 4 hours. Laundromatic recommends two windows: 
+The VPD is then converted to a simple "drying potential" metric, using the baseline - and highly anecdotal! - assumption that at 20°C and 70% RH, a batch of laundry would dry in 4 hours. Laundromatic recommends two windows: 
 - the **most efficient drying window** in terms of T and RH
 - the **last feasible window** (useful for spacing out your washes as efficiently as possible)
 
@@ -24,28 +24,20 @@ The VPD is then converted to a simple "drying potential" metric, using the basel
 Laundromatic operates as a command-line program. To perform a simple run: with a cmd window open from the repo root, enter `python -m laundromatic`. 
 
 The following optional arguments can be added as required:
-  -h, --help            show this help message and exit
+  `-h`, `--help` Show help message and exit.
 
-Location:
-  --location LOCATION   Location name (e.g. 'London'). Overrides lat/lon if provided.
-  --lat LAT             Latitude. Default: 51.51.
-  --lon LON             Longitude. Default: 0.13.
+  `--location` Location name (e.g. 'London'). Overrides lat/lon if provided.
+  `--lat` Latitude. Default is 51.51.
+  `--lon` Longitude. Default is 0.13.
 
-Drying model options:
-  --days DAYS           Forecast duration (days, 1-16). Default: 7.
-  --latest-end-hour LATEST_END_HOUR
-                        Latest acceptable finish time (hour, 0–23). Default: 20.
-  --earliest-start-hour EARLIEST_START_HOUR
-                        Earliest acceptable start time (hour, 0–23). Default: 8.
-  --required-drying REQUIRED_DRYING
-                        Target drying level (default: 1.0, fully dry).
-  --precipitation-probability-threshold PRECIPITATION_PROBABILITY_THRESHOLD
-                        Maximum precipitation probability for an hour to be considered 'dry'. Default: 0.2.
-  --max-duration-hours MAX_DURATION_HOURS
-                        Maximum window length in hours. Default: 8.
+  `--days` Forecast duration (days, 1-16). Default is 7.
+  `--latest-end-hour` Latest acceptable finish time (hour, 0–23). Default is 20.
+  `--earliest-start-hour` Earliest acceptable start time (hour, 0–23). Default is 8.
+  `--required-drying` Target drying level (default is 1.0, fully dry).
+  `--precipitation-probability-threshold` Maximum precipitation probability for an hour to be considered 'dry'. Default is 0.2.
+  `--max-duration-hours` Maximum window length in hours. Default is 8.
 
-Output options:
-  --show-all            Show all eligible drying windows
+  `--show-all` Show all eligible drying windows.
 
 Example command: `python -m laundromatic --location "West Midlands (England)" --days 3`.
 
@@ -62,3 +54,4 @@ Example command: `python -m laundromatic --location "West Midlands (England)" --
 - Consider wind speed and fabric thickness/type in the calculation.
 - Add visualisation of drying potential over time.
 - Provide a GUI. 
+- Co-optimise drying windows with periods of low grid carbon intensity and/or electricity price. 

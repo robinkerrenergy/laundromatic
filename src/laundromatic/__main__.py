@@ -40,3 +40,5 @@ else:
         print("\nAll eligible windows:")
         for w in sorted(eligible_windows, key=lambda w: (w["date"], w["start_hour"])):
             print("   ", format_window(w))
+
+# %%

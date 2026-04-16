@@ -20,32 +20,32 @@ class HourlyForecast:
         #self.wind_speed_mps = wind_speed_mps
         self.drying_progress = None
 
+def arden_buck(temp_c):
+    if temp_c >= 0:
+        return 0.61121 * math.exp(
+            (18.678 - temp_c / 234.5)
+            * (temp_c / (257.14 + temp_c))
+        )
+
+def vapour_pressure_deficit(saturation_vp_kpa, humidity_pct):
+    return saturation_vp_kpa * (1 - humidity_pct / 100.0)
+
+# Baseline assumption: t_0 = 4.0 h at T_0 = 20°C, RH_0 = 70%.
+temp_c_0 = 20
+rh_pct_0 = 70
+svp_kpa_0 = arden_buck(temp_c_0)
+vpd_kpa_0 = vapour_pressure_deficit(svp_kpa_0, rh_pct_0)
+
 def drying_progress_for_hour(temperature_c: float, humidity_pct: float):
-    
     if temperature_c < 0:
+        
         return 0.0
     
     # Estimate saturation vapour pressure in kPa using Arden Buck equation:
     else:
-        def arden_buck(temp_c):
-            if temp_c >= 0:
-                return 0.61121 * math.exp(
-                    (18.678 - temp_c / 234.5)
-                    * (temp_c / (257.14 + temp_c))
-                )
-        
-        saturation_vp_kpa = arden_buck(temperature_c)
-
-        def vapour_pressure_deficit(saturation_vp_kpa, humidity_pct):
-            return saturation_vp_kpa * (1 - humidity_pct / 100.0)
-        
+        saturation_vp_kpa = arden_buck(temperature_c)        
         vpd = vapour_pressure_deficit(saturation_vp_kpa, humidity_pct)
-
-        # Baseline assumption: t_0 = 4.0 h at T_0 = 20°C, RH_0 = 70%.
-        temp_c_0 = 20
-        rh_pct_0 = 70
-        svp_kpa_0 = arden_buck(temp_c_0)
-        vpd_kpa_0 = vapour_pressure_deficit(svp_kpa_0, rh_pct_0)
+        
         return vpd / (4.0 * vpd_kpa_0) # drying progress per hour, relative to baseline
 
 def calculate_drying_progress(hourly_forecasts, precipitation_probability_threshold):
