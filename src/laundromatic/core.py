@@ -49,16 +49,6 @@ def drying_progress_for_hour(temperature_c: float, humidity_pct: float):
         return vpd / (4.0 * vpd_kpa_0) # drying progress per hour, relative to baseline
 
 def calculate_drying_progress(hourly_forecasts, precipitation_probability_threshold):
-    """
-    Groups HourlyForecast objects by day and updates each in-place
-    with:
-      - no_rain (boolean, true if precipitation_probability <= precipitation_probability_threshold)
-      - drying_progress
-
-    Returns:
-        dict[date, list[HourlyForecast]]
-    """
-
     hourly_by_day = {}
 
     for hour in hourly_forecasts:
@@ -84,23 +74,6 @@ def calculate_drying_progress(hourly_forecasts, precipitation_probability_thresh
     return dict(hourly_by_day)
 
 def find_all_drying_windows(hours, required_drying, max_duration_hours):
-    """
-    Finds all contiguous drying windows in a single day that
-    achieve at least `required_drying`.
-
-    Returns
-    -------
-    list of dict
-        Each dict contains:
-        {
-            "start_hour": int,
-            "end_hour": int,
-            "duration_hours": int,
-            "total_drying": float,
-            "hourly_data": list[HourlyForecast],
-        }
-    """
-
     all_windows = []
 
     start = 0
