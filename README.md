@@ -8,7 +8,7 @@ Tired of checking the weather forecast to figure out when your laundry will actu
 
 Laundromatic uses temperature (T) and relative humidity (RH) data  to estimate how effectively laundry will dry outdoors, and helps you choose the best time window. The model computes the hourly vapour pressure deficit (VPD) using the Arden Buck equation, a standard approximation in atmospheric physics (https://www.appstate.edu/~neufeldhs/pltphys/transpirationbasics.htm; https://journals.ametsoc.org/view/journals/apme/20/12/1520-0450_1981_020_1527_nefcvp_2_0_co_2.xml). 
 
-The VPD is then converted to a simple "drying potential" metric, using the baseline - and highly anecdotal! - assumption that at 20°C and 70% RH, a batch of laundry would dry in 4 hours. Laundromatic recommends two windows: 
+The VPD is then converted to a simple "drying potential" metric, using the baseline assumption that at 20°C and 70% RH, a batch of laundry would dry in 4 hours. Laundromatic recommends two windows: 
 - the **most efficient drying window** in terms of T and RH
 - the **last feasible window** (useful for spacing out your washes as efficiently as possible)
 
